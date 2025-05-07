@@ -56,7 +56,7 @@ const authModel = {
 
     const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: "1h" });
 
-    console.log(token)
+    console.log(token);
 
     return userData;
   },

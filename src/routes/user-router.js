@@ -5,9 +5,9 @@ const adminMiddleware = require('../middlewares/admin-middleware')
 
 const userRouter = express.Router()
 
-userRouter.get('', adminMiddleware, userController.index)
+userRouter.get('', userController.index)
 
-userRouter.get('/:id', adminMiddleware, userController.show)
+userRouter.get('/:id', userController.show)
 
 userRouter.put('/update/:id', authMiddleware, userController.update)
 
