@@ -6,7 +6,19 @@ const jwt = require("jsonwebtoken");
 const authModel = {
   // Register ---------------------------------------------------------------------------------
   async register({ name, email, password, role }) {
+
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string"
+    )
+      throw new HttpError(400, "Invalid credentials.");
+
     const finalRole = role || "user";
+
+    console.log(finalRole)
+
+    if(finalRole !== 'admin' && finalRole !== 'user') throw new HttpError(400, 'Invalid credentials.')
 
     const userSearchResult = await query(
       `

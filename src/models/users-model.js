@@ -1,7 +1,7 @@
 const { query } = require("../database");
 const HttpError = require("../errors/http-error");
-const jwt = require('jsonwebtoken')
-const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 class User {
   constructor(userRow) {
@@ -44,7 +44,7 @@ class User {
   }
 
   // Update --------------------------------------------------------------------------------
-  static async update(userId, { name, email, password, role }) {
+  static async update(userId, { name, email, password }) {
     const userResult = await query(
       `
       SELECT * 
@@ -58,17 +58,22 @@ class User {
 
     const userResultData = userResult.rows[0];
 
-    if(userResultData.role === 'user') {
-      role = 'user'
-    }
+    const updatedAt = new Date();
 
-    const hashPassword = bcrypt.hashSync(password, 10)
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string"
+    )
+      throw new HttpError(400, "Invalid credentials.");
+
+    const hashPassword = bcrypt.hashSync(password, 10);
 
     const updatedUser = {
       name,
       email,
       hashPassword,
-      role,
+      updatedAt,
     };
 
     Object.assign(userResultData, updatedUser);
@@ -80,20 +85,23 @@ class User {
         name = $1,
         email = $2, 
         password = $3, 
-        role = $4
+        updated_at = $4
       WHERE id = $5
-      RETURNING *;
+      RETURNING*;
       `,
       [
         userResultData.name,
         userResultData.email,
         userResultData.password,
-        userResultData.role,
+        userResultData.updatedAt,
         userId,
       ]
     );
 
-    return new User(updatedUserResult.rows[0]);
+    if (!updatedUserResult.rows[0])
+      throw new HttpError(400, "Something went wrong while editing data.");
+
+    return { message: "User edited successfully." };
   }
 }
 
