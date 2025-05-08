@@ -15,8 +15,8 @@ const authController = {
 
     const newUser = await authModel.register(req.body);
 
-    req.session.authenticated = true;
-    req.session.currentUser = newUser;
+    // req.session.authenticated = true;
+    // req.session.currentUser = newUser;
 
     res.status(201).json({message: `Welcome, ${newUser.name}`});
   },
@@ -25,8 +25,8 @@ const authController = {
   login: async(req, res) => {
     const user = await authModel.login(req.body)
 
-    req.session.authenticated = true;
-    req.session.currentUser = user;
+    // req.session.authenticated = true;
+    // req.session.currentUser = user;
 
     res.status(200).json({message: `Welcome, ${user.name}`})
   },

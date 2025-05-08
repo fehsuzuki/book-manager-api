@@ -1,6 +1,5 @@
 const { query } = require("../database");
 const HttpError = require("../errors/http-error");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 class User {

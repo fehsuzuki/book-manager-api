@@ -2,7 +2,7 @@ const HttpError = require("../errors/http-error");
 const jwt = require('jsonwebtoken');
 const User = require("../models/users-model");
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async(req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) throw new HttpError(401, "Authorization token required.");
@@ -12,7 +12,7 @@ const authMiddleware = (req, res, next) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_KEY)
 
-    const user = User.getById(decodedToken.id)
+    const user = await User.getById(decodedToken.id)
 
     if(!user) throw new HttpError(404, 'User not found.')
 

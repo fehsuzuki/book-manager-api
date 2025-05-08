@@ -9,14 +9,14 @@ const app = express();
 
 app.use(express.json());
 
-app.use(
-  session({
-    secret: "palavra-chave-secreta",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
-  })
-);
+// app.use(
+//   session({
+//     secret: "palavra-chave-secreta",
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false },
+//   })
+// );
 
 app.use("/auth", authRouter);
 
