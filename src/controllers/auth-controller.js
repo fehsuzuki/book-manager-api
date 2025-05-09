@@ -31,11 +31,9 @@ const authController = {
     res.status(200).json({message: `Welcome, ${user.name}`})
   },
 
-  // GET /auth/logout
+  // POST /auth/logout
   logout: async(req, res) => {
-    if(!req.session) throw new HttpError(400, 'Session expired.')
-
-    req.session.destroy()
+    req.authenticatedUser = undefined
 
     res.status(200).json({message: `User logged out.`})
   }

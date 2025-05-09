@@ -61,10 +61,12 @@ const authModel = {
 
     const isValidPassword = await bcrypt.compare(password, userData.password);
 
+    console.log(userData.password)
+
     if (!isValidPassword)
       throw new HttpError(400, "Email or password incorrect.");
 
-    const payload = { id: userData.id, email: userData.email };
+    const payload = { id: userData.id, email: userData.email, role: userData.role };
 
     const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: "1h" });
 

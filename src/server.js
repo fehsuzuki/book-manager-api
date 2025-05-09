@@ -1,9 +1,10 @@
 const express = require("express");
-const userRouter = require("./routes/user-router");
+const userRouter = require("./routes/users-router");
 const errorMiddleware = require("./middlewares/error-middleware");
 const authRouter = require("./routes/auth-router");
 const dotenv = require("dotenv");
 const session = require("express-session");
+const SpacesRouter = require("./routes/spaces-router");
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use("/auth", authRouter);
 
 app.use("/users", userRouter);
+
+app.use("/spaces", SpacesRouter)
 
 app.use(errorMiddleware);
 

@@ -55,28 +55,26 @@ class User {
 
     if (!userResult.rows[0]) throw new HttpError(404, "User not found.");
 
-    const userResultData = userResult.rows[0];
+    const userData = userResult.rows[0];
+
+    if(name === undefined) name = userData.name
+    if(email === undefined) email = userData.email
+    if(password === undefined) password = userData.password
 
     const updatedAt = new Date();
 
-    if (
-      typeof name !== "string" ||
-      typeof email !== "string" ||
-      typeof password !== "string"
+    // Verificando se o email atualizado já está em uso
+    const userExistsResult = await query(
+      `
+      SELECT *
+      FROM users
+      WHERE email = $1;
+      `,
+      [email]
     )
-      throw new HttpError(400, "Invalid credentials.");
 
-    const hashPassword = bcrypt.hashSync(password, 10);
-
-    const updatedUser = {
-      name,
-      email,
-      hashPassword,
-      updatedAt,
-    };
-
-    Object.assign(userResultData, updatedUser);
-
+    if(email !== userData.email && userExistsResult) throw new HttpError(400, 'Email already in use;')
+   
     const updatedUserResult = await query(
       `
       UPDATE users
@@ -89,10 +87,10 @@ class User {
       RETURNING*;
       `,
       [
-        userResultData.name,
-        userResultData.email,
-        userResultData.password,
-        userResultData.updatedAt,
+        name,
+        email,
+        password,
+        updatedAt,
         userId,
       ]
     );
@@ -100,7 +98,7 @@ class User {
     if (!updatedUserResult.rows[0])
       throw new HttpError(400, "Something went wrong while editing data.");
 
-    return { message: "User edited successfully." };
+    return new User(updatedUserResult.rows[0]);
   }
 }
 

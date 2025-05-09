@@ -25,13 +25,7 @@ const userController = {
   update: async (req, res) => {
     const id = req.params.id;
 
-    const authHeader = req.headers.authorization
-
-    const token = authHeader.split(" ")[1]
-
-    const decodedToken = jwt.verify(token, process.env.JWT_KEY)
-
-    if(+id !== decodedToken.id) throw new HttpError(400, `Cannot edit another user's data.`)
+    if(req.authenticatedUser.role !== 'admin' && +id !== req.authenticatedUser.id) throw new HttpError(400, `Cannot edit another user's data.`)
 
     const updatedUser = await User.update(id, req.body);
 
