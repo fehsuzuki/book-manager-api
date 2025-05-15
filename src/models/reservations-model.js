@@ -1,0 +1,4 @@
+class Reservations {
+  constructor(reservationRow) {
+  }
+}

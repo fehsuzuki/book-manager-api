@@ -2,23 +2,34 @@ const { query } = require("../database");
 const HttpError = require("../errors/http-error");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const joi = require("joi");
+
+const userSchema = joi.object({
+  name: joi.string().required(),
+
+  email: joi
+    .string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com"] } })
+    .required(),
+
+  password: joi.string().required(),
+
+  role: joi.string().valid("user", "admin").required(),
+});
 
 const authModel = {
   // Register ---------------------------------------------------------------------------------
   async register({ name, email, password, role }) {
+    const isUserCredentialsValid = userSchema.validate({
+      name,
+      email,
+      password,
+      role,
+    });
 
-    if (
-      typeof name !== "string" ||
-      typeof email !== "string" ||
-      typeof password !== "string"
-    )
-      throw new HttpError(400, "Invalid credentials.");
-
-    const finalRole = role || "user";
-
-    console.log(finalRole)
-
-    if(finalRole !== 'admin' && finalRole !== 'user') throw new HttpError(400, 'Invalid credentials.')
+    if (isUserCredentialsValid.error) {
+      throw new HttpError(400, isUserCredentialsValid.error.message);
+    }
 
     const userSearchResult = await query(
       `
@@ -38,7 +49,7 @@ const authModel = {
       VALUES ($1, $2, $3, $4)
       RETURNING *;
       `,
-      [name, email, bcrypt.hashSync(password, 10), finalRole]
+      [name, email, bcrypt.hashSync(password, 10), role]
     );
 
     return newUserResult.rows[0];
@@ -61,12 +72,16 @@ const authModel = {
 
     const isValidPassword = await bcrypt.compare(password, userData.password);
 
-    console.log(userData.password)
+    console.log(userData.password);
 
     if (!isValidPassword)
       throw new HttpError(400, "Email or password incorrect.");
 
-    const payload = { id: userData.id, email: userData.email, role: userData.role };
+    const payload = {
+      id: userData.id,
+      email: userData.email,
+      role: userData.role,
+    };
 
     const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: "1h" });
 

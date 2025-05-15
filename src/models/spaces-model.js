@@ -1,5 +1,16 @@
 const { query } = require("../database");
 const HttpError = require("../errors/http-error");
+const joi = require("joi");
+
+const spaceSchema = joi.object({
+  name: joi.string().required(),
+
+  description: joi.string().required(),
+
+  capacity: joi.number().integer().required(),
+
+  location: joi.string().required(),
+});
 
 class Space {
   constructor(spaceRow) {
@@ -39,6 +50,17 @@ class Space {
   }
 
   static async create({ name, description, capacity, location }) {
+    const isSpaceCredentialsValid = spaceSchema.validate({
+      name,
+      description,
+      capacity,
+      location,
+    });
+
+    if (isSpaceCredentialsValid.error) {
+      throw new HttpError(400, isSpaceCredentialsValid.error.message);
+    }
+
     const spaceResult = await query(
       `
       SELECT * 
@@ -63,7 +85,6 @@ class Space {
   }
 
   static async update(spaceId, { name, description, capacity, location }) {
-
     const spaceResult = await query(
       `
       SELECT *
@@ -75,14 +96,14 @@ class Space {
 
     if (!spaceResult.rows[0]) throw new HttpError(404, "Space not found.");
 
-    const spaceData = spaceResult.rows[0]
+    const spaceData = spaceResult.rows[0];
 
-    if(name === undefined) name = spaceData.name
-    if(description === undefined) description = spaceData.description
-    if(capacity === undefined) capacity = spaceData.capacity
-    if(location === undefined) location = spaceData.location
+    if (name === undefined) name = spaceData.name;
+    if (description === undefined) description = spaceData.description;
+    if (capacity === undefined) capacity = spaceData.capacity;
+    if (location === undefined) location = spaceData.location;
 
-    const updatedAt = new Date()
+    const updatedAt = new Date();
 
     // Verificando se já existe um espaço registrado com o mesmo nome e mesmo endereço
     const spaceExistsResult = await query(
@@ -92,9 +113,10 @@ class Space {
       WHERE name = $1 AND location = $2;
       `,
       [name, location]
-    )
+    );
 
-    if(name !== spaceData.name && location !== spaceData.location) throw new HttpError(400, 'Space already registered.')
+    if (name !== spaceData.name && location !== spaceData.location)
+      throw new HttpError(400, "Space already registered.");
 
     const updatedSpaceResult = await query(
       `
@@ -109,9 +131,9 @@ class Space {
       RETURNING*;
       `,
       [name, description, capacity, location, updatedAt, spaceId]
-    )
+    );
 
-    return new Space(updatedSpaceResult.rows[0])
+    return new Space(updatedSpaceResult.rows[0]);
   }
 
   static async delete(spaceId) {
@@ -122,9 +144,9 @@ class Space {
       WHERE id = $1
       `,
       [spaceId]
-    )
+    );
 
-    if(!spaceResult) throw new HttpError(404, 'Space not found.')
+    if (!spaceResult) throw new HttpError(404, "Space not found.");
 
     await query(
       `
@@ -132,7 +154,7 @@ class Space {
       WHERE id = $1
       `,
       [spaceId]
-    )
+    );
   }
 }
 

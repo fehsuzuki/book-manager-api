@@ -3,14 +3,14 @@ const spacesController = require('../controllers/spaces-controller')
 const authMiddleware = require('../middlewares/auth-middleware')
 const adminMiddleware = require('../middlewares/admin-middleware')
 
-const SpacesRouter = express.Router()
+const spacesRouter = express.Router()
 
-SpacesRouter.get('', spacesController.index)
+spacesRouter.get('', authMiddleware, adminMiddleware, spacesController.index)
 
-SpacesRouter.get('/:id', authMiddleware, adminMiddleware, spacesController.show)
+spacesRouter.get('/:id', authMiddleware, adminMiddleware, spacesController.show)
 
-SpacesRouter.post('/create', authMiddleware, adminMiddleware, spacesController.create)
+spacesRouter.post('/create', authMiddleware, adminMiddleware, spacesController.create)
 
-SpacesRouter.put('/update/:id', authMiddleware, adminMiddleware, spacesController.update)
+spacesRouter.put('/update/:id', authMiddleware, adminMiddleware, spacesController.update)
 
-module.exports = SpacesRouter
+module.exports = spacesRouter
