@@ -2,20 +2,8 @@ const { query } = require("../database");
 const HttpError = require("../errors/http-error");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const joi = require("joi");
+const userSchema = require("../validations/users-schema");
 
-const userSchema = joi.object({
-  name: joi.string().required(),
-
-  email: joi
-    .string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com"] } })
-    .required(),
-
-  password: joi.string().required(),
-
-  role: joi.string().valid("user", "admin").required(),
-});
 
 const authModel = {
   // Register ---------------------------------------------------------------------------------
