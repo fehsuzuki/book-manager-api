@@ -36,6 +36,7 @@ async function syncDatabase() {
       user_id INT,
       space_id INT,
       start_time TIMESTAMP NOT NULL,
+      end_time TIMESTAMP NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
